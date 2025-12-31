@@ -26,8 +26,60 @@ const Events: NextPage = () => {
     eventName: "LiquidityRemoved",
   });
 
+  const { data: approvalEvents, isLoading: isApprovalEventsLoading } = useScaffoldEventHistory({
+    contractName: "Balloons", // Chú ý: Tên contract là Balloons
+    eventName: "Approval", // Event tiêu chuẩn của ERC20
+  });
+
   return (
     <>
+      {/* --- Bảng Approval Events mới thêm cho Side Quest --- */}
+      {isApprovalEventsLoading ? (
+        <div className="flex justify-center items-center mt-10">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
+      ) : (
+        <div className="mb-8">
+          <div className="text-center mb-4">
+            <span className="block text-2xl font-bold text-secondary">Balloons Approval Events (Side Quest)</span>
+          </div>
+          <div className="overflow-x-auto shadow-lg">
+            <table className="table table-zebra w-full">
+              <thead>
+                <tr>
+                  <th className="bg-secondary text-secondary-content">Owner (You)</th>
+                  <th className="bg-secondary text-secondary-content">Spender (DEX)</th>
+                  <th className="bg-secondary text-secondary-content">Amount Approved</th>
+                </tr>
+              </thead>
+              <tbody>
+                {!approvalEvents || approvalEvents.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="text-center">
+                      No approval events found
+                    </td>
+                  </tr>
+                ) : (
+                  approvalEvents?.map((event, index) => {
+                    return (
+                      <tr key={index}>
+                        <td className="text-center">
+                          <Address address={event.args.owner} />
+                        </td>
+                        <td className="text-center">
+                          <Address address={event.args.spender} />
+                        </td>
+                        <td>{parseFloat(formatEther(event.args.value || 0n)).toFixed(4)} $BAL</td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+      {/* --- Hết phần Side Quest --- */}
       <div className="flex items-center flex-col flex-grow pt-10">
         {isEthToTokenEventsLoading ? (
           <div className="flex justify-center items-center mt-10">
